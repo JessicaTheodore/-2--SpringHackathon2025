@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="main.css">
 </head>
 
-
 <body>
 
 <div class="game-container text-center">
@@ -22,12 +21,19 @@
     <button onclick="removeItem()" class="btn btn-danger">Remove Item</button>
 </div>
 
+<!-- Display total money on the left -->
+<div id="moneyBox" style="position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: white; font-size: 24px; font-weight: bold;">
+    Total Money: $500
+</div>
+
 <script>
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
 
     const inventory = document.getElementById('inventory');
     let items = ['Item1', 'Item2', 'Item3', 'Item4', 'Item5'];
+
+    let totalMoney = 500; // Track money
 
     function renderInventory() {
         inventory.innerHTML = '';
@@ -110,9 +116,9 @@
         const y = canvas.height - player.height - 20;
         ctx.drawImage(player.image, x, y, player.width, player.height);
 
-        // Debug hitbox
-        ctx.strokeStyle = 'lime';
-        ctx.lineWidth = 1;
+        // Red border for player
+        ctx.strokeStyle = 'red';
+        ctx.lineWidth = 2;
         ctx.strokeRect(x, y, player.width, player.height);
     }
 
@@ -121,9 +127,9 @@
             const x = enemy.lane * laneWidth + laneWidth / 1 - enemy.width / 1;
             ctx.drawImage(enemy.image, x, enemy.y, enemy.width, enemy.height);
 
-            // Debug hitbox
+            // Red border for enemies
             ctx.strokeStyle = 'red';
-            ctx.lineWidth = 1;
+            ctx.lineWidth = 2;
             ctx.strokeRect(x, enemy.y, enemy.width, enemy.height);
 
             enemy.y += enemySpeed;
@@ -152,6 +158,10 @@
         return false;
     }
 
+    function updateMoney() {
+        document.getElementById('moneyBox').innerText = `Total Money: $${totalMoney}`;
+    }
+
     function gameLoop() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -160,8 +170,13 @@
         drawEnemies();
 
         if (collision()) {
-            alert("Game Over! 🚗💥");
-            return;
+            totalMoney -= 100;
+            updateMoney();
+
+            if (totalMoney <= 0) {
+                alert("Game Over! 🚗💥");
+                return;
+            }
         }
 
         requestAnimationFrame(gameLoop);
