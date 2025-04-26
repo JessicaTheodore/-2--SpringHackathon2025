@@ -64,6 +64,12 @@
       <a href="home.html" class="btn menu-button">Ok</a>    </div>
 </div>
 
+<!-- Modal for 6 items -->
+<div id="popupModal1" class="modal">
+    <div class="modal-content">
+      <p>You have lost! Try Again!</p>
+      <a href="home.html" class="btn menu-button">Ok</a>    </div>
+</div>
 <script>
     const partImages = ['tire.png', 'oil.png', 'brake.png', 'battery.png', 'wrench.png','headlight.png'];
 
@@ -321,7 +327,7 @@
             collisionDetected = true;
 
             if (totalMoney <= 0) {
-                alert("Game Over! 🚗💥");
+                document.getElementById("popupModal1").style.display = "block";
                 return;
             }
         } 
