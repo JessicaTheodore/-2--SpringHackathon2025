@@ -34,6 +34,7 @@
     let items = ['Item1', 'Item2', 'Item3', 'Item4', 'Item5'];
 
     let totalMoney = 500; // Track money
+    let collisionDetected = false; // Flag to prevent multiple subtractions per frame
 
     function renderInventory() {
         inventory.innerHTML = '';
@@ -152,10 +153,10 @@
                 playerY < enemyY + enemy.height &&
                 playerY + player.height > enemyY
             ) {
-                return true;
+                return true; // Collision detected
             }
         }
-        return false;
+        return false; // No collision
     }
 
     function updateMoney() {
@@ -169,14 +170,20 @@
         drawPlayer();
         drawEnemies();
 
-        if (collision()) {
-            totalMoney -= 100;
+        if (collision() && !collisionDetected) {
+            totalMoney -= 100; // Subtract money only once per collision
             updateMoney();
+            collisionDetected = true; // Mark collision as detected
 
             if (totalMoney <= 0) {
                 alert("Game Over! 🚗💥");
                 return;
             }
+        }
+
+        // Reset the collision flag if no collision is detected
+        if (!collision()) {
+            collisionDetected = false;
         }
 
         requestAnimationFrame(gameLoop);
