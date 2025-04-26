@@ -10,7 +10,7 @@
 
 <div class="container text-center">
     <h1 class="text-light mb-4">Car Service Game</h1>
-    <canvas id="gameCanvas" width="400" height="500"></canvas>
+    <canvas id="gameCanvas" width="400" height="750"></canvas>
 </div>
 
 <script>
@@ -20,7 +20,7 @@
     // Game settings
     const laneCount = 5;
     const laneWidth = canvas.width / laneCount;
-    const enemySpeed = 5;
+    const enemySpeed = 2;
     let enemies = [];
 
     // Player settings
@@ -45,7 +45,7 @@
         enemies.push(enemy);
 
         // Randomize the spawn rate for the next car in this lane (between 1 and 5 seconds)
-        const randomInterval = Math.random() * 4000 + 1000; 
+        const randomInterval = Math.random() * 1000; 
         setTimeout(spawnEnemy, randomInterval);
     }
 
@@ -68,18 +68,52 @@
     function drawPlayer() {
         const x = player.lane * laneWidth + laneWidth / 2 - player.width / 2;
         const y = canvas.height - player.height - 20;
+
         ctx.drawImage(player.image, x, y, player.width, player.height);
+
+        // Debug: draw hitbox
+        ctx.strokeStyle = 'lime'; // bright green for player
+        ctx.lineWidth = 2;
+        ctx.strokeRect(x, y, player.width, player.height);
     }
 
     function drawEnemies() {
         enemies.forEach(enemy => {
             const x = enemy.lane * laneWidth + laneWidth / 2 - enemy.width / 2;
+
             ctx.drawImage(enemy.image, x, enemy.y, enemy.width, enemy.height);
-            enemy.y += enemySpeed; // Move the enemy downwards
+
+            // Debug: draw hitbox
+            ctx.strokeStyle = 'red'; // red for enemies
+            ctx.lineWidth = 2;
+            ctx.strokeRect(x, enemy.y, enemy.width, enemy.height);
+
+            enemy.y += enemySpeed; // Move enemy down
         });
 
         // Remove enemies that have gone off the screen
         enemies = enemies.filter(enemy => enemy.y < canvas.height + 100);
+    }
+
+    function collision() {
+        const playerX = player.lane * laneWidth + laneWidth / 2 - player.width / 2;
+        const playerY = canvas.height - player.height - 20;
+
+        for (let enemy of enemies) {
+            const enemyX = enemy.lane * laneWidth + laneWidth / 2 - enemy.width / 2;
+            const enemyY = enemy.y;
+
+            // Check collision (basic AABB collision detection)
+            if (
+                playerX < enemyX + enemy.width &&
+                playerX + player.width > enemyX &&
+                playerY < enemyY + enemy.height &&
+                playerY + player.height > enemyY
+            ) {
+                return true; // collision happened
+            }
+        }
+        return false; // no collision
     }
 
     function gameLoop() {
@@ -89,6 +123,11 @@
         drawLanes();
         drawPlayer();
         drawEnemies();
+
+        if (collision()) {
+            alert("Game Over! 🚗💥");
+            return; // stop the loop
+        }
 
         // Keep the game loop running
         requestAnimationFrame(gameLoop);
