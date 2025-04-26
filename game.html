@@ -10,8 +10,8 @@
 <body>
 
 <div class="game-container text-center">
-    <h1 class="text-light mb-4">Car Service Game</h1>
-    <canvas id="gameCanvas" width="400" height="750"></canvas>
+    <h1 class="text-light mb-4">Pit Stop Panic</h1>
+    <canvas id="gameCanvas" width="400" height="600"></canvas>
 </div>
 
 <div id="inventory" class="array-column"></div>
@@ -89,7 +89,7 @@
     // --- Game code ---
     const laneCount = 5;
     const laneWidth = canvas.width / laneCount;
-    const enemySpeed = 2;
+    const enemySpeed = 7;
     let enemies = [];
 
     const player = {
@@ -101,7 +101,7 @@
     player.image.src = 'GoodCar.png';
 
     let partsOnRoad = [];
-    const partSpeed = 2;
+    const partSpeed = 7;
 
     function spawnEnemy() {
         const enemy = {
@@ -169,9 +169,9 @@ function drawParts() {
         ctx.drawImage(part.image, x, part.y, part.width, part.height);
 
         // Debug hitbox
-        ctx.strokeStyle = 'yellow';
-        ctx.lineWidth = 1;
-        ctx.strokeRect(x, part.y, part.width, part.height);
+        // ctx.strokeStyle = 'yellow';
+        // ctx.lineWidth = 1;
+        //ctx.strokeRect(x, part.y, part.width, part.height); -->
 
         part.y += partSpeed;
     });
@@ -200,9 +200,9 @@ function drawParts() {
         ctx.drawImage(player.image, x, y, player.width, player.height);
 
         // Red border for player
-        ctx.strokeStyle = 'red';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(x, y, player.width, player.height);
+       // ctx.strokeStyle = 'red';
+       // ctx.lineWidth = 2;
+        //ctx.strokeRect(x, y, player.width, player.height);
     }
 
     function drawEnemies() {
@@ -211,9 +211,9 @@ function drawParts() {
             ctx.drawImage(enemy.image, x, enemy.y, enemy.width, enemy.height);
 
             // Red border for enemies
-            ctx.strokeStyle = 'red';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(x, enemy.y, enemy.width, enemy.height);
+           // ctx.strokeStyle = 'red';
+           // ctx.lineWidth = 2;
+           // ctx.strokeRect(x, enemy.y, enemy.width, enemy.height);
 
             enemy.y += enemySpeed;
         });
