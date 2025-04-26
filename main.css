@@ -9,6 +9,48 @@ body {
     align-items: center;
     text-align: center;
   }
+
+  /* Modal Styles */
+#popupModal {
+  display: none; /* Initially hidden */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7); /* Transparent dark background */
+  z-index: 9999; /* Ensure it is on top of the canvas */
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.modal-content {
+  background-color: white;
+  border-radius: 10px;
+  padding: 30px;
+  width: 80%;
+  max-width: 400px;
+  font-size: 20px;
+  color: black; /* Set the font color to black */
+  font-weight: bold;
+}
+
+button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 18px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
   .menu-button {
     background-color: #ff4d4d;
     border: none;
