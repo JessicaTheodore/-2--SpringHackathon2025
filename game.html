@@ -4,26 +4,125 @@
     <meta charset="UTF-8">
     <title>Car Service Game</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="main.css">
+    <style>
+        body {
+            background-color: #343a40;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        canvas {
+            background: #555;
+            border: 3px solid white;
+            box-shadow: 0 0 20px rgba(255,255,255,0.5);
+        }
+        .array-column {
+            position: absolute;
+            top: 50%;
+            right: 50px;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .array-item {
+            width: 80px;
+            height: 80px;
+            background-color: #6c757d;
+            border: 2px solid white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .array-item:hover {
+            background-color: #adb5bd;
+        }
+        .inventory-controls {
+            position: absolute;
+            right: 50px;
+            bottom: 50px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+    </style>
 </head>
+
 <body>
 
-<div class="container text-center">
+<div class="game-container text-center">
     <h1 class="text-light mb-4">Car Service Game</h1>
     <canvas id="gameCanvas" width="400" height="750"></canvas>
+</div>
+
+<div id="inventory" class="array-column"></div>
+
+<div class="inventory-controls">
+    <button onclick="addItem()" class="btn btn-success">Add Item</button>
+    <button onclick="removeItem()" class="btn btn-danger">Remove Item</button>
 </div>
 
 <script>
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
 
-    // Game settings
+    const inventory = document.getElementById('inventory');
+    let items = ['Item1', 'Item2', 'Item3', 'Item4', 'Item5'];
+
+    function renderInventory() {
+        inventory.innerHTML = '';
+        items.forEach((item, index) => {
+            const div = document.createElement('div');
+            div.className = 'array-item';
+            div.innerText = item;
+            div.onclick = () => selectItem(index);
+            inventory.appendChild(div);
+        });
+    }
+
+    function selectItem(index) {
+        alert('You selected: ' + items[index]);
+    }
+
+    function addItem() {
+        const newItem = 'Item' + (items.length + 1);
+        items.push(newItem);
+        renderInventory();
+    }
+
+    function removeItem() {
+        if (items.length > 0) {
+            items.pop();
+            renderInventory();
+        } else {
+            alert('Inventory is empty!');
+        }
+    }
+
+    // Initial render
+    renderInventory();
+
+    // --- Game code ---
     const laneCount = 5;
     const laneWidth = canvas.width / laneCount;
     const enemySpeed = 2;
     let enemies = [];
 
-    // Player settings
     const player = {
         width: 100,
         height: 100,
@@ -32,20 +131,18 @@
     };
     player.image.src = 'GoodCar.png';
 
-    // Function to spawn an enemy in a random lane at a random frequency
     function spawnEnemy() {
         const enemy = {
-            width: 100,  
+            width: 100,
             height: 100,
-            lane: Math.floor(Math.random() * laneCount), // Random lane
+            lane: Math.floor(Math.random() * laneCount),
             y: -100,
             image: new Image()
         };
         enemy.image.src = 'BadCar.png';
         enemies.push(enemy);
 
-        // Randomize the spawn rate for the next car in this lane (between 1 and 5 seconds)
-        const randomInterval = Math.random() * 1000; 
+        const randomInterval = Math.random() * 3000 + 1000; // 1-4 seconds
         setTimeout(spawnEnemy, randomInterval);
     }
 
@@ -55,8 +152,6 @@
 
         ctx.strokeStyle = '#fff';
         ctx.lineWidth = 2;
-
-        // Draw the lane dividers
         for (let i = 1; i < laneCount; i++) {
             ctx.beginPath();
             ctx.moveTo(i * laneWidth, 0);
@@ -66,32 +161,29 @@
     }
 
     function drawPlayer() {
-        const x = player.lane * laneWidth + laneWidth / 2 - player.width / 2;
+        const x = player.lane * laneWidth + laneWidth / 1 - player.width / 1;
         const y = canvas.height - player.height - 20;
-
         ctx.drawImage(player.image, x, y, player.width, player.height);
 
-        // Debug: draw hitbox
-        ctx.strokeStyle = 'lime'; // bright green for player
-        ctx.lineWidth = 2;
+        // Debug hitbox
+        ctx.strokeStyle = 'lime';
+        ctx.lineWidth = 1;
         ctx.strokeRect(x, y, player.width, player.height);
     }
 
     function drawEnemies() {
         enemies.forEach(enemy => {
-            const x = enemy.lane * laneWidth + laneWidth / 2 - enemy.width / 2;
-
+            const x = enemy.lane * laneWidth + laneWidth / 1 - enemy.width / 1;
             ctx.drawImage(enemy.image, x, enemy.y, enemy.width, enemy.height);
 
-            // Debug: draw hitbox
-            ctx.strokeStyle = 'red'; // red for enemies
-            ctx.lineWidth = 2;
+            // Debug hitbox
+            ctx.strokeStyle = 'red';
+            ctx.lineWidth = 1;
             ctx.strokeRect(x, enemy.y, enemy.width, enemy.height);
 
-            enemy.y += enemySpeed; // Move enemy down
+            enemy.y += enemySpeed;
         });
 
-        // Remove enemies that have gone off the screen
         enemies = enemies.filter(enemy => enemy.y < canvas.height + 100);
     }
 
@@ -103,37 +195,33 @@
             const enemyX = enemy.lane * laneWidth + laneWidth / 2 - enemy.width / 2;
             const enemyY = enemy.y;
 
-            // Check collision (basic AABB collision detection)
             if (
                 playerX < enemyX + enemy.width &&
                 playerX + player.width > enemyX &&
                 playerY < enemyY + enemy.height &&
                 playerY + player.height > enemyY
             ) {
-                return true; // collision happened
+                return true;
             }
         }
-        return false; // no collision
+        return false;
     }
 
     function gameLoop() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // Drawing the game elements
         drawLanes();
         drawPlayer();
         drawEnemies();
 
         if (collision()) {
             alert("Game Over! 🚗💥");
-            return; // stop the loop
+            return;
         }
 
-        // Keep the game loop running
         requestAnimationFrame(gameLoop);
     }
 
-    // Keyboard controls
     document.addEventListener('keydown', function (event) {
         if (event.key === 'ArrowLeft' && player.lane > 0) {
             player.lane--;
@@ -142,10 +230,7 @@
         }
     });
 
-    // Start spawning enemies at random intervals
     spawnEnemy();
-
-    // Start the game loop
     gameLoop();
 </script>
 
