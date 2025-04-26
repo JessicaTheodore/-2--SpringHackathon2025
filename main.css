@@ -36,6 +36,24 @@ body {
     border: 3px solid white;
     box-shadow: 0 0 20px rgba(255,255,255,0.5);
 }
+
+.logo-bottom-left {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+}
+
+.logo-bottom-left img {
+  width: 100px; /* Adjust as needed */
+  opacity: 0.8;
+  animation: fadeIn 1s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 0.8; }
+}
+
 .array-column {
   position: absolute;
   top: 50%;

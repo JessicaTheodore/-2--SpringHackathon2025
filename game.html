@@ -7,12 +7,16 @@
     <link rel="stylesheet" href="main.css">
 </head>
 
-
 <body>
 
 <div class="game-container text-center">
     <h1 class="text-light mb-4">Car Service Game</h1>
     <canvas id="gameCanvas" width="400" height="750"></canvas>
+</div>
+
+<!-- Logo in the bottom left corner -->
+<div class="logo-bottom-left">
+    <img src="Pit Stop.png" alt="Pit Stop Logo">
 </div>
 
 <div id="inventory" class="array-column"></div>
@@ -87,7 +91,7 @@
         enemy.image.src = 'BadCar.png';
         enemies.push(enemy);
 
-        const randomInterval = Math.random() * 750; // 0-1 seconds
+        const randomInterval = Math.random() * 750;
         setTimeout(spawnEnemy, randomInterval);
     }
 
@@ -110,7 +114,6 @@
         const y = canvas.height - player.height - 20;
         ctx.drawImage(player.image, x, y, player.width, player.height);
 
-        // Debug hitbox
         ctx.strokeStyle = 'lime';
         ctx.lineWidth = 1;
         ctx.strokeRect(x, y, player.width, player.height);
@@ -121,7 +124,6 @@
             const x = enemy.lane * laneWidth + laneWidth / 1 - enemy.width / 1;
             ctx.drawImage(enemy.image, x, enemy.y, enemy.width, enemy.height);
 
-            // Debug hitbox
             ctx.strokeStyle = 'red';
             ctx.lineWidth = 1;
             ctx.strokeRect(x, enemy.y, enemy.width, enemy.height);
