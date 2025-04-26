@@ -15,37 +15,45 @@
 </div>
 
 <div id="inventory" class="array-column"></div>
-
-<div class="inventory-controls">
-    <button onclick="addItem()" class="btn btn-success">Add Item</button>
-    <button onclick="removeItem()" class="btn btn-danger">Remove Item</button>
-</div>
-
 <!-- Display total money on the left -->
 <div id="moneyBox" style="position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: white; font-size: 24px; font-weight: bold;">
     Total Money: $500
 </div>
 
 <script>
+    const partImages = ['tire.png', 'oil.png', 'brake.png', 'battery.png', 'wrench.png','headlight.png'];
+
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
 
     const inventory = document.getElementById('inventory');
-    let items = ['Item1', 'Item2', 'Item3', 'Item4', 'Item5'];
+    let items = [];
 
     let totalMoney = 500; // Track money
     let collisionDetected = false; // Flag to prevent multiple subtractions per frame
 
     function renderInventory() {
-        inventory.innerHTML = '';
-        items.forEach((item, index) => {
-            const div = document.createElement('div');
-            div.className = 'array-item';
+    inventory.innerHTML = '';
+    items.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = 'array-item';
+        
+        // Check if item matches a known part
+        if (partImages.some(img => img.includes(item))) {
+            const img = document.createElement('img');
+            img.src = item + '.png';
+            img.width = 30;
+            img.height = 30;
+            div.appendChild(img);
+        } else {
             div.innerText = item;
-            div.onclick = () => selectItem(index);
-            inventory.appendChild(div);
-        });
-    }
+        }
+
+        div.onclick = () => selectItem(index);
+        inventory.appendChild(div);
+    });
+}
+
 
     function selectItem(index) {
         alert('You selected: ' + items[index]);
@@ -83,6 +91,9 @@
     };
     player.image.src = 'GoodCar.png';
 
+    let partsOnRoad = [];
+    const partSpeed = 2;
+
     function spawnEnemy() {
         const enemy = {
             width: 80,
@@ -94,9 +105,71 @@
         enemy.image.src = 'BadCar.png';
         enemies.push(enemy);
 
-        const randomInterval = Math.random() * 750; // 0-1 seconds
+        const randomInterval = Math.random() * 3000 + 1000; // 0-1 seconds
         setTimeout(spawnEnemy, randomInterval);
     }
+
+    function spawnPart() {
+    const availableLanes = Array.from({ length: laneCount }, (_, i) => i);
+
+    // Remove lanes that have enemies
+    enemies.forEach(enemy => {
+        const enemyLane = enemy.lane;
+        const index = availableLanes.indexOf(enemyLane);
+        if (index > -1) {
+            availableLanes.splice(index, 1);
+        }
+    });
+
+    // If no lanes are available, skip spawning
+    if (availableLanes.length === 0) {
+        const randomInterval = Math.random() * 3000 + 2000; 
+        setTimeout(spawnPart, randomInterval);
+        return;
+    }
+
+    const part = {
+        width: 50,
+        height: 50,
+        lane: availableLanes[Math.floor(Math.random() * availableLanes.length)],
+        y: -50,
+        image: new Image(),
+        name: ''
+    };
+    const randomPart = partImages[Math.floor(Math.random() * partImages.length)];
+    part.image.src = randomPart;
+    part.name = randomPart.split('.')[0];
+
+    partsOnRoad.push(part);
+
+    // Make the part disappear after 5 seconds if not collected
+    setTimeout(() => {
+        const index = partsOnRoad.indexOf(part);
+        if (index > -1) {
+            partsOnRoad.splice(index, 1);
+        }
+    }, 5500);
+
+    const randomInterval = Math.random() * 3000 + 2000;
+    setTimeout(spawnPart, randomInterval);
+}
+
+function drawParts() {
+    partsOnRoad.forEach(part => {
+        const x = part.lane * laneWidth + laneWidth / 1 - part.width / 1;
+        ctx.drawImage(part.image, x, part.y, part.width, part.height);
+
+        // Debug hitbox
+        ctx.strokeStyle = 'yellow';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(x, part.y, part.width, part.height);
+
+        part.y += partSpeed;
+    });
+
+    partsOnRoad = partsOnRoad.filter(part => part.y < canvas.height + 50);
+}
+
 
     function drawLanes() {
         ctx.fillStyle = '#555';
@@ -163,12 +236,41 @@
         document.getElementById('moneyBox').innerText = `Total Money: $${totalMoney}`;
     }
 
+    function checkPartCollection() {
+    const playerX = player.lane * laneWidth + laneWidth / 2 - player.width / 2;
+    const playerY = canvas.height - player.height - 20;
+
+    partsOnRoad.forEach((part, index) => {
+        const partX = part.lane * laneWidth + laneWidth / 2 - part.width / 2;
+        const partY = part.y;
+
+        if (
+            playerX < partX + part.width &&
+            playerX + player.width > partX &&
+            playerY < partY + part.height &&
+            playerY + player.height > partY
+        ) {
+            // Only add the part if it's not already in inventory
+            if (!items.includes(part.name)) {
+                items.push(part.name); // Add to inventory
+                renderInventory();
+            }
+            partsOnRoad.splice(index, 1); // Remove the collected part
+        }
+    });
+}
+
+
+
     function gameLoop() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         drawLanes();
         drawPlayer();
         drawEnemies();
+        drawParts();
+        checkPartCollection();
+
 
         if (collision() && !collisionDetected) {
             totalMoney -= 100; // Subtract money only once per collision
@@ -198,6 +300,7 @@
     });
 
     spawnEnemy();
+    spawnPart();
     gameLoop();
 </script>
 
